@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Himanshu's Working Memory Task</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 80px; }
+    .hidden { display: none; }
+    .word { font-size: 2em; margin: 20px; display: block; }
+    input, button {
+      padding: 10px;
+      font-size: 1em;
+      margin: 8px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Instruction Page -->
+  <div id="instruction-page">
+    <h2>Welcome to my working memory task</h2>
+    <br>
+    <p>Memorize the words that appear one by one on the screen.<br>
+       Afterward, you will see a single word and must decide whether it was shown earlier in the set.<br>       
+       Use the buttons to indicate your confidence:</p>
+    <ul style="text-align:left; display:inline-block;">
+      <li><b>Sure Yes</b>: You are certain the word was shown.</li>
+      <li><b>Maybe Yes</b>: You think it was shown, but not sure.</li>
+      <li><b>Maybe No</b>: You think it was new, but not sure.</li>
+      <li><b>Sure No</b>: You are certain it was not shown.</li>
+    </ul>
+    <p>Then, the next set of words will be presented.<br>
+        It will take approximately 8 minutes for the entire task to complete.<br><br></p>
+    <p>Please enter your name before starting:</p>
+    <input id="subject-name" type="text" placeholder="Enter your name" required>
+    <button id="start-btn">Start</button>
+  </div>
+
+  <!-- Study Page -->
+  <div id="study-page" class="hidden">
+    <h2>Memorize the words</h2>
+    <div id="study-word" class="word"></div>
+  </div>
+
+  <!-- Probe Page -->
+  <div id="probe-page" class="hidden">
+    <h2>Was this word shown before in the set?</h2>
+    <div id="probe-word" class="word"></div>
+    <div id="confidence-buttons">
+      <button data-response="sure_yes">Sure Yes</button>
+      <button data-response="maybe_yes">Maybe Yes</button>
+      <button data-response="maybe_no">Maybe No</button>
+      <button data-response="sure_no">Sure No</button>
+    </div>
+  </div>
+
+  <!-- Countdown Page -->
+  <div id="countdown-page" class="hidden">
+    <h2>Trial <span id="trial-number">1</span> begins in <span id="countdown">3</span>...</h2>
+  </div>
+
+  <!-- End Page -->
+  <div id="end-page" class="hidden">
+    <h2 id="thank-you-text">Thank you for participating!</h2>
+    <h3>Your overall accuracy: <span id="overall-accuracy">0</span>%</h3>
+    <p>Your data will download automatically.</p>
+  </div>
+
+  <script src="task.js"></script>
+</body>
+</html>
