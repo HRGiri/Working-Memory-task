@@ -12,10 +12,9 @@ const allWords = [
   "voice", "sound", "noise", "pitch", "tempo", "scale", "tone", "blink", "sight", "touch"
 ];
 
-const setSizes = [8, 10, 12, 14];                 // default
-const numResponsesPerTrial = 6;           // number of probe responses per trial
-const numResponsesPerSetSize = 12;       // per set size
-const numTrialsPerSetSize = Math.floor(numResponsesPerSetSize / numResponsesPerTrial);          // calculated based on above
+const setSizes = [8, 10, 12, 14, 16];                 // default
+let numResponsesPerTrial = 6;           // number of probe responses per trial
+let numResponsesPerSetSize = 12;       // per set size
 const probeRatio = 0.5;                // 50% of probes come from studied set
 const ITI = 3000;                      // inter-trial interval (ms)
 let wordDisplayTime = 800;           // each word shown for 800 ms
@@ -28,17 +27,25 @@ let subjectName = "participant";
 
 /* ---------------- URL Parameter Check ---------------- */
 const params = new URLSearchParams(window.location.search);
-// Add ?numResponses=<value> to URL to fix the number of responses.
-// const numResponsesPerSetSizeParam = parseInt(params.get("numResponses"));
-// if (!isNaN(numResponsesPerSetSizeParam)) {
-//   numResponsesPerSetSize = numResponsesPerSetSizeParam;
-// }
+// Add ?responsesPerTrial=<value> to URL to set number of probe responses per trial.
+const responsesParam = parseInt(params.get("responsesPerTrial"));
+if (!isNaN(responsesParam)) {
+  numResponsesPerTrial = responsesParam;
+}
+
+// Add ?responsesPerSetSize=<value> to URL to set number of probe responses per set size.
+const responsesSetSizeParam = parseInt(params.get("responsesPerSetSize"));
+if (!isNaN(responsesSetSizeParam)) {
+  numResponsesPerSetSize = responsesSetSizeParam;  
+}
 
 // Add ?wordTime=<value> to URL to fix word display time in ms.
 const wordTimeParam = parseInt(params.get("wordTime"));
 if (!isNaN(wordTimeParam)) {
   wordDisplayTime = wordTimeParam;
 }
+
+const numTrialsPerSetSize = Math.floor(numResponsesPerSetSize / numResponsesPerTrial);          // calculated based on above
 
 /* ---------------- Page Elements ---------------- */
 const pages = {
@@ -54,6 +61,27 @@ const trialNumberSpan = document.getElementById("trial-number");
 const countdownSpan = document.getElementById("countdown");
 const thankYouText = document.getElementById("thank-you-text");
 const overallAccuracySpan = document.getElementById("overall-accuracy");
+
+/* ---------------- Approximate Task Duration Calculation ---------------- */
+function calculateApproxDuration() {  
+  let totalDuration = 0;
+    setSizes.forEach(size => {    
+    totalDuration += size * (wordDisplayTime + interWordInterval); // study phase
+    totalDuration += ITI; // inter-trial interval
+    totalDuration += numResponsesPerTrial * 1500; // probe phase (approx 1.5s per response)
+  });
+  return numTrialsPerSetSize * totalDuration;
+}
+
+function getApproxDurationString() {
+  const totalDuration = calculateApproxDuration();
+  const minutes = Math.floor(totalDuration / 60000);
+  const seconds = Math.floor((totalDuration % 60000) / 1000);
+  return `${minutes}m ${seconds}s`;
+}
+
+/* ---------------- Display Approximate Duration ---------------- */
+document.getElementById("approx-duration").textContent = getApproxDurationString();
 
 /* ---------------- Task Flow ---------------- */
 document.getElementById("start-btn").onclick = () => {
