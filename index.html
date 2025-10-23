@@ -21,7 +21,7 @@
   <div id="instruction-page">
     <h2>Welcome to my working memory task</h2>
     <br>
-    <p>Memorize the words that appear one by one on the screen.<br>
+    <p>Some words will appear one by one on the screen. Memorize all the words in the set.<br>
        Afterward, you will see a single word and must decide whether it was shown earlier in the set.<br>       
        Use the buttons to indicate your confidence:</p>
     <ul style="text-align:left; display:inline-block;">
@@ -30,9 +30,9 @@
       <li><b>Maybe No</b>: You think it was new, but not sure.</li>
       <li><b>Sure No</b>: You are certain it was not shown.</li>
     </ul>
-    <p>Then, the next set of words will be presented.<br>
+    <p>Then, the next set of words will be presented. There are a total of <span id="num-trials">0</span> sets.<br><br>
         It will take approximately <span id="approx-duration">8 minutes</span> for the entire task to complete.<br><br></p>
-    <p>Please enter your name before starting:</p>
+
     <input id="subject-name" type="text" placeholder="Enter your name" required>
     <button id="start-btn">Start</button>
   </div>
@@ -57,7 +57,8 @@
 
   <!-- Countdown Page -->
   <div id="countdown-page" class="hidden">
-    <h2>Trial <span id="trial-number">1</span> begins in <span id="countdown">3</span>...</h2>
+    <h2>Set <span id="trial-number">1</span> begins in</h2>
+    <h1><span id="countdown">3</span>...</h1>
   </div>
 
   <!-- End Page -->

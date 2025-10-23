@@ -5,7 +5,7 @@ const allWords = [
   "fence", "skirt", "spoon", "shell", "crown", "drift", "flock", "spark", "plank", "blaze",
   "cream", "glass", "glove", "shade", "flour", "sugar", "honey", "berry", "sheep", "horse",
   "tiger", "zebra", "snake", "mouse", "eagle", "piano", "harp", "drum", "viola", "flute",
-  "stone", "steel", "brick", "paper", "cloth", "wheat", "corns", "grind", "smoke", "flask",
+  "store", "steel", "click", "paper", "cloth", "wheat", "corns", "grind", "smoke", "flask",
   "brush", "paint", "ruler", "plate", "spice", "straw", "frost", "chill", "storm", "bloom",
   "petal", "stalk", "rooty", "valve", "wheel", "screw", "nails", "hinge", "cable", "motor",
   "brain", "heart", "nerve", "blood", "skull", "liver", "limbs", "hands", "teeth", "mouth",
@@ -16,7 +16,7 @@ const setSizes = [8, 10, 12, 14, 16];                 // default
 let numResponsesPerTrial = 6;           // number of probe responses per trial
 let numResponsesPerSetSize = 12;       // per set size
 const probeRatio = 0.5;                // 50% of probes come from studied set
-const ITI = 3000;                      // inter-trial interval (ms)
+const ITI = 5000;                      // inter-trial interval (ms)
 let wordDisplayTime = 800;           // each word shown for 800 ms
 const interWordInterval = 300;         // pause between words (ms)
 
@@ -55,6 +55,7 @@ const pages = {
   countdown: document.getElementById("countdown-page"),
   end: document.getElementById("end-page")
 };
+const numTrialsSpan = document.getElementById("num-trials");
 const studyWordDiv = document.getElementById("study-word");
 const probeWordDiv = document.getElementById("probe-word");
 const trialNumberSpan = document.getElementById("trial-number");
@@ -62,22 +63,27 @@ const countdownSpan = document.getElementById("countdown");
 const thankYouText = document.getElementById("thank-you-text");
 const overallAccuracySpan = document.getElementById("overall-accuracy");
 
+/* ---------------- Display Number of Trials ---------------- */
+const totalTrials = numTrialsPerSetSize * setSizes.length;
+numTrialsSpan.textContent = totalTrials;
+
 /* ---------------- Approximate Task Duration Calculation ---------------- */
 function calculateApproxDuration() {  
   let totalDuration = 0;
     setSizes.forEach(size => {    
     totalDuration += size * (wordDisplayTime + interWordInterval); // study phase
     totalDuration += ITI; // inter-trial interval
-    totalDuration += numResponsesPerTrial * 1500; // probe phase (approx 1.5s per response)
+    totalDuration += numResponsesPerTrial * 3000; // probe phase (approx 3s per response)
   });
   return numTrialsPerSetSize * totalDuration;
 }
 
 function getApproxDurationString() {
   const totalDuration = calculateApproxDuration();
-  const minutes = Math.floor(totalDuration / 60000);
-  const seconds = Math.floor((totalDuration % 60000) / 1000);
-  return `${minutes}m ${seconds}s`;
+  const minutes = Math.ceil(totalDuration / 60000);
+  // const seconds = Math.floor((totalDuration % 60000) / 1000);
+
+  return `${minutes} minutes`;
 }
 
 /* ---------------- Display Approximate Duration ---------------- */
@@ -97,7 +103,8 @@ document.getElementById("start-btn").onclick = () => {
 function startTask() {
   generateTrials();
   currentTrial = 0;
-  runNextTrial();
+  showCountdown();
+  // runNextTrial();
 }
 
 function generateTrials() {
@@ -105,6 +112,7 @@ function generateTrials() {
   setSizes.forEach(size => {
     for (let i = 0; i < numTrialsPerSetSize; i++) {
       const shuffled = [...allWords].sort(() => Math.random() - 0.5);
+      // console.log("Shuffled Words:", shuffled);
       const subset = shuffled.slice(0, size);
       trials.push({ set_size: size, subset: subset });
     }
@@ -209,7 +217,7 @@ function showCountdown() {
 //   console.log("Current Trial:", currentTrial, "Total Trials:", trials.length);
   if (currentTrial < trials.length) {
   pages.countdown.classList.remove("hidden");
-  let count = 3;
+  let count = ITI / 1000;
   trialNumberSpan.textContent = "" + (currentTrial + 1) + " / " + trials.length;
   countdownSpan.textContent = count;
   const timer = setInterval(() => {
