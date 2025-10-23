@@ -12,11 +12,11 @@ const allWords = [
   "voice", "sound", "noise", "pitch", "tempo", "scale", "tone", "blink", "sight", "touch"
 ];
 
-const setSizes = [8, 10, 12, 14, 16];                 // default
+let setSizes = [8, 10, 12, 14, 16];                 // default
 let numResponsesPerTrial = 6;           // number of probe responses per trial
 let numResponsesPerSetSize = 12;       // per set size
 const probeRatio = 0.5;                // 50% of probes come from studied set
-const ITI = 5000;                      // inter-trial interval (ms)
+let ITI = 5000;                      // inter-trial interval (ms)
 let wordDisplayTime = 800;           // each word shown for 800 ms
 const interWordInterval = 300;         // pause between words (ms)
 
@@ -27,6 +27,11 @@ let subjectName = "participant";
 
 /* ---------------- URL Parameter Check ---------------- */
 const params = new URLSearchParams(window.location.search);
+// Add ?setSizes=<comma separated numbers> to URL to set custom set sizes.
+const setSizesParam = params.get("setSizes");
+if (setSizesParam) {
+  setSizes = setSizesParam.split(",").map(Number);
+}
 // Add ?responsesPerTrial=<value> to URL to set number of probe responses per trial.
 const responsesParam = parseInt(params.get("responsesPerTrial"));
 if (!isNaN(responsesParam)) {
@@ -43,6 +48,12 @@ if (!isNaN(responsesSetSizeParam)) {
 const wordTimeParam = parseInt(params.get("wordTime"));
 if (!isNaN(wordTimeParam)) {
   wordDisplayTime = wordTimeParam;
+}
+
+// Add ?iti=<value> to URL to set inter-trial interval in s.
+const itiParam = parseInt(params.get("iti"));
+if (!isNaN(itiParam)) {
+  ITI = itiParam * 1000;  // convert to ms
 }
 
 const numTrialsPerSetSize = Math.floor(numResponsesPerSetSize / numResponsesPerTrial);          // calculated based on above
@@ -62,6 +73,7 @@ const trialNumberSpan = document.getElementById("trial-number");
 const countdownSpan = document.getElementById("countdown");
 const thankYouText = document.getElementById("thank-you-text");
 const overallAccuracySpan = document.getElementById("overall-accuracy");
+const sendStatus = document.getElementById("send_status");
 
 /* ---------------- Display Number of Trials ---------------- */
 const totalTrials = numTrialsPerSetSize * setSizes.length;
@@ -269,11 +281,26 @@ function downloadCSV() {
     data.map(r => headers.map(h => r[h]).join(","))
   ).join("\n");
 
-  const blob = new Blob([csvContent], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `subject_${subjectName}_data.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+  // ALSO send to your Google Apps Script endpoint
+  fetch("https://script.google.com/macros/s/AKfycbzXgp5kDq1aqlcFg39m1dc446dmvBAOE4FR1Bs7Tz1kmsPiYhm-A-cdy4Mb_BAQ3ynzDg/exec?subject=" + encodeURIComponent(subjectName), {
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },
+    body: csvContent
+  })
+  .then(r => r.text())
+  .then(console.log)
+  .then(() => {
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `subject_${subjectName}_data.csv`;
+    a.click();
+
+    URL.revokeObjectURL(url);
+
+    sendStatus.textContent = "Your data has been sent successfully. You may now close this window.";
+    sendStatus.style.color = "green";
+})
+.catch(console.error);
 }
